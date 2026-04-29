@@ -1,0 +1,111 @@
+{% extends 'lands/base.html' %}
+{% block content %}
+<div class="row mb-3">
+    <div class="col-md-3">
+        <div class="card tn-bg-blue text-white shadow-sm border-0">
+            <div class="card-body">
+                <h6>Total Parcels</h6>
+                <h3>{{ total_parcels }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-danger text-white shadow-sm border-0">
+            <div class="card-body">
+                <h6>Total Alerts</h6>
+                <h3>{{ total_alerts }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card tn-bg-yellow text-dark shadow-sm border-0">
+            <div class="card-body">
+                <h6>Officers</h6>
+                <h3>{{ total_officers }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white shadow-sm border-0">
+            <div class="card-body">
+                <h6>Districts</h6>
+                <h3>{{ districts_count }}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-7">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-header bg-white fw-bold">Parcels by District</div>
+            <div class="card-body p-0">
+                {{ plot_dist|safe }}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-5">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-header bg-white fw-bold">Alert Status</div>
+            <div class="card-body p-0">
+                {{ plot_status|safe }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-5">
+        <div class="card shadow-sm border-0 mb-4 border-primary border-start border-4">
+            <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center">
+                <span><i class="fa-solid fa-satellite-dish text-primary me-2"></i> Scan Management</span>
+                {% if latest_scan %}
+                <span class="badge bg-light text-muted fw-normal" style="font-size: 0.7rem;">
+                    Last Scan: {{ latest_scan|date:"d M Y H:i" }}
+                </span>
+                {% endif %}
+            </div>
+            <div class="card-body text-center py-5" id="scan-container">
+                <i class="fa-solid fa-satellite fs-1 text-muted mb-3 opacity-50"></i>
+                <h5 class="fw-bold">Real-Time Satellite Monitoring</h5>
+                <p class="small text-muted mb-4 px-3">
+                    Connected to <strong>Google Earth Engine</strong>. Analyzes Sentinel-2 NDVI temporal difference (last 5 days vs 10-15 days) to detect illegal construction.
+                </p>
+                <div class="d-grid gap-2 px-3">
+                    <form hx-post="{% url 'run_real_time_scan' %}" hx-target="#scan-result" hx-indicator="#loading">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger w-100 py-2 fw-bold shadow-sm">
+                            <i class="fa-solid fa-satellite-dish me-2"></i> Run Real-Time GEE Scan
+                        </button>
+                    </form>
+                    <a href="{% url 'map_dashboard' %}" class="btn btn-outline-primary w-100 py-2 fw-bold">
+                        <i class="fa-solid fa-map-location-dot me-2"></i> View Result on Map
+                    </a>
+                </div>
+                <div id="scan-result" class="mt-4 px-3"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-7">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-header bg-white fw-bold"><i class="fa-solid fa-list-check text-secondary me-2"></i> Recent Audit Logs</div>
+            <div class="card-body p-0 table-responsive border-0">
+                <table class="table table-sm table-striped mb-0 small">
+                    <thead><tr><th>Time</th><th>User</th><th>Action</th><th>Detail</th><th>IP</th></tr></thead>
+                    <tbody>
+                        {% for log in recent_logs %}
+                        <tr>
+                            <td>{{ log.timestamp|date:"d M H:i" }}</td>
+                            <td>{{ log.officer.officer_id|default:"System" }}</td>
+                            <td><span class="badge bg-secondary">{{ log.get_action_display }}</span></td>
+                            <td class="text-truncate" style="max-width: 200px;" title="{{ log.description }}">{{ log.description }}</td>
+                            <td>{{ log.ip_address }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

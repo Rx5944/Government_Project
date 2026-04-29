@@ -1,0 +1,33 @@
+{% extends 'lands/base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0 text-danger fw-bold"><i class="fa-solid fa-triangle-exclamation me-2"></i> Raise Manual Alert</h4>
+    <a href="javascript:history.back()" class="btn btn-sm btn-outline-secondary">Cancel</a>
+</div>
+
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card shadow-sm border-0 border-danger border-top border-4">
+            <div class="card-body p-4">
+                <div class="alert alert-warning small">
+                    <i class="fa-solid fa-circle-info me-1"></i> You are manually raising an encroachment alert based on field verification or public complaint. If it includes photographic evidence, upload it below.
+                </div>
+                {% crispy form %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // If URL has parcel_id parameter, auto select it
+    const urlParams = new URLSearchParams(window.location.search);
+    const parcelId = urlParams.get('parcel_id');
+    if(parcelId) {
+        let select = document.getElementById('id_parcel');
+        if(select) select.value = parcelId;
+    }
+});
+</script>
+{% endblock %}

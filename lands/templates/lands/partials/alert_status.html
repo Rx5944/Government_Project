@@ -1,0 +1,45 @@
+<div class="card-header bg-white fw-bold"><i class="fa-solid fa-list-check text-primary me-2"></i> Update Status</div>
+<div class="card-body">
+    <div class="d-flex align-items-center mb-3">
+        <span class="fw-bold me-3">Current:</span>
+        <span class="badge badge-{{ alert.status|lower }} px-3 py-2 fs-6">{{ alert.get_status_display }}</span>
+    </div>
+    
+    <form hx-post="{% url 'alert_detail' alert.id %}" hx-target="#status-container" class="border p-3 bg-light rounded">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="update_status">
+        <div class="row align-items-center mb-2">
+            <div class="col-md-6">
+                <select name="status" class="form-select form-select-sm" required>
+                    <option value="">Change Status To...</option>
+                    {% for val, label in alert.STATUS_CHOICES %}
+                    <option value="{{ val }}">{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-6">
+                <button type="submit" class="btn btn-sm btn-primary tn-bg-blue w-100">Update Status</button>
+            </div>
+        </div>
+        <textarea name="notes" class="form-control form-control-sm" rows="2" placeholder="Status update notes... (optional)"></textarea>
+    </form>
+    
+    <div class="mt-3 d-flex gap-2">
+        {% if alert.status != 'RESOLVED' %}
+        <form hx-post="{% url 'alert_detail' alert.id %}" hx-target="#status-container" class="flex-grow-1">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="resolve">
+            <input type="hidden" name="notes" id="resolve_notes" value="Field verified and issue resolved.">
+            <button type="submit" class="btn btn-success w-100 fw-bold" onclick="document.getElementById('resolve_notes').value = prompt('Resolution Notes:');"><i class="fa-solid fa-check me-1"></i> Mark Resolved</button>
+        </form>
+        {% endif %}
+        
+        {% if request.user.officer.role in 'ADMIN,DISTRICT_OFFICER' and not alert.escalated_to_collector %}
+        <form hx-post="{% url 'alert_detail' alert.id %}" hx-target="#status-container" class="flex-grow-1">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="escalate">
+            <button type="submit" class="btn btn-warning text-dark w-100 fw-bold"><i class="fa-solid fa-arrow-up-right-dots me-1"></i> Escalate to Collector</button>
+        </form>
+        {% endif %}
+    </div>
+</div>

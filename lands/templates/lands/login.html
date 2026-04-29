@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - GLRMS Tamil Nadu</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/lands/css/custom.css">
+    <style>
+        body { background-color: #f4f6f9; display: flex; align-items: center; height: 100vh; }
+        .login-card { max-width: 450px; width: 100%; margin: auto; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .login-header { background-color: var(--tn-blue); color: white; border-radius: 8px 8px 0 0; padding: 20px; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="card login-card">
+        <div class="login-header">
+            <h4 class="mb-1">GLRMS</h4>
+            <p class="mb-0 small">Government Land Records Management System<br>Revenue Department — Tamil Nadu</p>
+        </div>
+        <div class="card-body p-4">
+            {% if error %}
+                <div class="alert alert-danger small py-2">{{ error }}</div>
+            {% endif %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} small py-2">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+            <form method="POST">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label text-muted small fw-bold">Employee ID</label>
+                    <input type="text" name="officer_id" class="form-control" value="{{ officer_id|default:'' }}" required placeholder="e.g. TN001">
+                </div>
+                <div class="mb-4">
+                    <label class="form-label text-muted small fw-bold">Password</label>
+                    <input type="password" name="password" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100 tn-bg-blue border-0 py-2 fw-bold">Secure Login</button>
+            </form>
+        </div>
+        <div class="card-footer text-center bg-white border-0 pb-3 mt-0 text-muted small">
+            Powered by NIC | Government of Tamil Nadu
+        </div>
+    </div>
+</body>
+</html>

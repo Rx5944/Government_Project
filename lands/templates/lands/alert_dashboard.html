@@ -1,0 +1,57 @@
+{% extends 'lands/base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+<div class="row mb-3">
+    <div class="col-md-3">
+        <div class="card bg-danger text-white shadow-sm border-0">
+            <div class="card-body py-2">
+                <h6 class="card-title mb-0">Open</h6>
+                <h3 class="fw-bold mb-0">{{ open_count }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card tn-bg-yellow text-dark shadow-sm border-0">
+            <div class="card-body py-2">
+                <h6 class="card-title mb-0">Investigating</h6>
+                <h3 class="fw-bold mb-0">{{ investigating_count }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white shadow-sm border-0" style="background-color: #8e44ad;">
+            <div class="card-body py-2">
+                <h6 class="card-title mb-0">Escalated</h6>
+                <h3 class="fw-bold mb-0">{{ escalated_count }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card btn-success text-white shadow-sm border-0" style="background-color: var(--tn-green) !important;">
+            <div class="card-body py-2">
+                <h6 class="card-title mb-0">Resolved</h6>
+                <h3 class="fw-bold mb-0">{{ resolved_count }}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body py-3">
+        <form hx-get="{% url 'alert_dashboard' %}" hx-target="#table-container" class="row gx-2 align-items-end">
+            <div class="col-md-2">{{ filter.form.status|as_crispy_field }}</div>
+            <div class="col-md-2">{{ filter.form.severity|as_crispy_field }}</div>
+            <div class="col-md-2">{{ filter.form.alert_type|as_crispy_field }}</div>
+            <div class="col-md-2">{{ filter.form.district|as_crispy_field }}</div>
+            <div class="col-md-2">{{ filter.form.start_date|as_crispy_field }}</div>
+            <div class="col-md-2 pb-3"><button type="submit" class="btn btn-primary tn-bg-blue w-100 btn-sm">Filter</button></div>
+        </form>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body p-0" id="table-container">
+        {% include 'lands/partials/alert_table.html' %}
+    </div>
+</div>
+{% endblock %}

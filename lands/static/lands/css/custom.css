@@ -1,0 +1,50 @@
+:root {
+  --tn-blue: #1a3c6e;
+  --tn-saffron: #f5a623;
+  --tn-green: #2d7a2d;
+  --tn-red: #c0392b;
+  --tn-yellow: #f39c12;
+}
+
+.tn-bg-blue { background-color: var(--tn-blue) !important; }
+.tn-bg-yellow { background-color: var(--tn-saffron) !important; }
+.tn-text-blue { color: var(--tn-blue) !important; }
+
+.active-nav {
+    background-color: #e9ecef !important;
+    border-left: 4px solid var(--tn-saffron);
+    color: var(--tn-blue) !important;
+    font-weight: bold;
+}
+
+.tn-sidebar a { color: #495057; }
+
+/* Status Badges */
+.badge-clear { background-color: var(--tn-green); color: white; }
+.badge-disputed { background-color: var(--tn-yellow); color: #fff; }
+.badge-litigation { background-color: var(--tn-red); color: white; }
+.badge-encroached { background-color: #8e44ad; color: white; }
+
+/* Severity */
+.badge-low { background-color: #3498db; }
+.badge-medium { background-color: var(--tn-yellow); }
+.badge-high { background-color: #e67e22; }
+.badge-critical { background-color: var(--tn-red); }
+
+/* Method */
+.badge-ml { background-color: #9b59b6; }
+.badge-satellite { background-color: #1abc9c; }
+.badge-field { background-color: var(--tn-green); }
+
+/* Table overrides */
+.table td { vertical-align: middle; font-size: 0.9rem; }
+.table th { font-size: 0.85rem; text-transform: uppercase; color: #6c757d; }
+
+/* Custom Map container styling */
+#map {
+    width: 100%; border-radius: 8px; border: 1px solid #dee2e6;
+}
+
+.htmx-indicator { opacity: 0; transition: opacity 200ms ease-in; }
+.htmx-request .htmx-indicator { opacity: 1; }
+.htmx-request.htmx-indicator { opacity: 1; }

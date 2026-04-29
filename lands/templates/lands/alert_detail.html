@@ -1,0 +1,87 @@
+{% extends 'lands/base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0 text-danger fw-bold"><i class="fa-solid fa-triangle-exclamation me-2"></i> Alert #{{ alert.id }}</h4>
+    <a href="{% url 'parcel_detail' alert.parcel.id %}" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-link"></i> View Parcel</a>
+</div>
+
+<div class="row">
+    <div class="col-md-7">
+        <div class="card shadow-sm border-0 mb-3 border-danger border-start border-4">
+            <div class="card-header bg-white fw-bold d-flex justify-content-between">
+                <span><i class="fa-solid fa-circle-exclamation text-danger me-2"></i> Alert Detail</span>
+                <span class="badge badge-{{ alert.severity|lower }}">{{ alert.get_severity_display }}</span>
+            </div>
+            <div class="card-body">
+                <div class="row mb-2">
+                    <div class="col-sm-4 text-muted small fw-bold">Parcel</div>
+                    <div class="col-sm-8">{{ alert.parcel.survey_number }} - {{ alert.parcel.village }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-sm-4 text-muted small fw-bold">Type & Method</div>
+                    <div class="col-sm-8">{{ alert.get_alert_type_display }} <span class="badge badge-secondary ms-2">{{ alert.get_detection_method_display }}</span></div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-sm-4 text-muted small fw-bold">Created On</div>
+                    <div class="col-sm-8">{{ alert.created_at|date:"d M Y, h:i A" }}</div>
+                </div>
+                <hr>
+                <h6 class="fw-bold small text-muted text-uppercase mb-2">Description</h6>
+                <p class="small mb-0" style="white-space: pre-wrap;">{{ alert.description }}</p>
+                
+                {% if alert.detection_method == 'ML_AUTO' %}
+                <hr>
+                <div class="bg-light p-3 rounded">
+                    <h6 class="fw-bold small text-primary text-uppercase mb-2"><i class="fa-solid fa-robot me-1"></i> ChangeFormer ML Output</h6>
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="small fw-bold text-muted">Change Detected</div>
+                            <div class="fs-5 text-danger fw-bold">{{ alert.change_percentage }}%</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="small fw-bold text-muted">Model Confidence</div>
+                            <div class="progress mt-1" style="height: 12px;">
+                                <div class="progress-bar bg-success" role="progressbar" style="width: {{ alert.ml_confidence_score|floatformat:2|default:0|add:"0"|stringformat:"f" }}%;">{{ alert.ml_confidence_score }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card shadow-sm border-0 mb-3" id="status-container">
+            {% include 'lands/partials/alert_status.html' %}
+        </div>
+    </div>
+
+    <div class="col-md-5">
+        {% if alert.evidence_photo %}
+        <div class="card shadow-sm border-0 mb-3">
+            <div class="card-header bg-white fw-bold"><i class="fa-solid fa-camera text-primary me-2"></i> Field Evidence</div>
+            <div class="card-body p-0">
+                <img src="{{ alert.evidence_photo.url }}" class="img-fluid w-100" alt="Evidence">
+            </div>
+        </div>
+        {% endif %}
+
+        {% if alert.before_image and alert.after_image %}
+        <div class="card shadow-sm border-0 mb-3">
+            <div class="card-header bg-white fw-bold"><i class="fa-solid fa-satellite text-primary me-2"></i> Satellite Comparison</div>
+            <div class="card-body p-2 bg-dark">
+                <div class="row g-1">
+                    <div class="col-6 position-relative">
+                        <span class="position-absolute top-0 start-0 badge bg-primary mt-2 ms-2 opacity-75">Before</span>
+                        <img src="{{ alert.before_image.image_file.url }}" class="img-fluid w-100" alt="Before">
+                    </div>
+                    <div class="col-6 position-relative">
+                        <span class="position-absolute top-0 start-0 badge bg-danger mt-2 ms-2 opacity-75">After</span>
+                        <img src="{{ alert.after_image.image_file.url }}" class="img-fluid w-100" alt="After">
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

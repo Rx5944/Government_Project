@@ -1,0 +1,45 @@
+{
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Govt Parcel A",
+                "type": "GOVERNMENT"
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            899000,
+                            1233000
+                        ],
+                        [
+                            899500,
+                            1233000
+                        ],
+                        [
+                            899500,
+                            1232000
+                        ],
+                        [
+                            899000,
+                            1232000
+                        ],
+                        [
+                            899000,
+                            1233000
+                        ]
+                    ]
+                ]
+            }
+        }
+    ],
+    "crs": {
+        "type": "name",
+        "properties": {
+            "name": "urn:ogc:def:crs:EPSG::32643"
+        }
+    }
+}

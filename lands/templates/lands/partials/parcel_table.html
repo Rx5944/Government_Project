@@ -1,0 +1,78 @@
+<div class="table-responsive">
+    <table class="table table-hover table-striped mb-0">
+        <thead class="table-light">
+            <tr>
+                <th>Survey No</th>
+                <th>District</th>
+                <th>Village</th>
+                <th>Class</th>
+                <th>Area (sqm)</th>
+                <th>Status</th>
+                <th>Risk</th>
+                <th>Alerts</th>
+                <th>Last Scan</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for parcel in page_obj %}
+            <tr>
+                <td class="fw-bold">{{ parcel.survey_number }}</td>
+                <td>{{ parcel.district.name }}</td>
+                <td>{{ parcel.village }}</td>
+                <td>{{ parcel.get_classification_display }}</td>
+                <td>{{ parcel.area_sqm }}</td>
+                <td>
+                    <span class="badge 
+                        {% if parcel.status == 'SAFE' %}bg-success
+                        {% elif parcel.status == 'DISPUTED' %}bg-warning
+                        {% elif parcel.status == 'ENCROACHED' %}bg-danger
+                        {% else %}bg-secondary
+                        {% endif %}">
+                        {{ parcel.get_status_display }}
+                    </span>
+                </td>
+                <td>
+                    <div class="progress" style="height: 10px; width: 60px; margin-top: 5px;">
+                        <div class="progress-bar {% if parcel.encroachment_risk_score > 0.7 %}bg-danger{% elif parcel.encroachment_risk_score > 0.3 %}bg-warning{% else %}bg-success{% endif %}" 
+                             role="progressbar" style="width: {{parcel.encroachment_risk_score|default:0|floatformat:2}}%;"></div>
+                    </div>
+                </td>
+                <td>
+                    {% if parcel.alert_count > 0 %}
+                    <span class="badge bg-danger rounded-circle">{{ parcel.alert_count }}</span>
+                    {% else %}
+                    <span class="text-muted small">0</span>
+                    {% endif %}
+                </td>
+                <td class="small">{{ parcel.last_satellite_scan|date:"d M Y"|default:"Never" }}</td>
+                <td>
+                    <a href="{% url 'parcel_detail' parcel.id %}" class="btn btn-sm btn-outline-primary py-0 px-2" title="View Details"><i class="fa-solid fa-eye"></i></a>
+                    {% if request.user.officer.role == 'ADMIN' or request.user.officer.role == 'DISTRICT_OFFICER' %}
+                    <a href="{% url 'parcel_edit' parcel.id %}" class="btn btn-sm btn-outline-secondary py-0 px-2" title="Edit"><i class="fa-solid fa-pen"></i></a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="10" class="text-center text-muted py-4">No parcels found.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="p-3 border-top d-flex justify-content-between align-items-center text-muted small bg-light">
+    <div>
+        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+    </div>
+    <div>
+        {% if page_obj.has_previous %}
+        <button hx-get="?page=1" hx-target="#table-container" hx-include="form" class="btn btn-sm btn-outline-secondary px-2 py-0">&laquo; First</button>
+        <button hx-get="?page={{ page_obj.previous_page_number }}" hx-target="#table-container" hx-include="form" class="btn btn-sm btn-outline-secondary px-2 py-0">Prev</button>
+        {% endif %}
+        
+        {% if page_obj.has_next %}
+        <button hx-get="?page={{ page_obj.next_page_number }}" hx-target="#table-container" hx-include="form" class="btn btn-sm btn-outline-secondary px-2 py-0">Next</button>
+        <button hx-get="?page={{ page_obj.paginator.num_pages }}" hx-target="#table-container" hx-include="form" class="btn btn-sm btn-outline-secondary px-2 py-0">Last &raquo;</button>
+        {% endif %}
+    </div>
+</div>

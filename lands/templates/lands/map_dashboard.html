@@ -1,0 +1,48 @@
+{% extends 'lands/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-primary"><i class="fa-solid fa-map-location-dot me-2"></i> Illegal Occupation Detection Map</h2>
+        <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary btn-sm"><i class="fa-solid fa-arrow-left me-1"></i> Back to Dashboard</a>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center">
+            <span><i class="fa-solid fa-satellite me-2 text-primary"></i> Real-Time Satellite Analysis (Live GEE)</span>
+            {% if gee_tile_url %}
+            <span class="badge bg-success">Live GEE Tiles Active</span>
+            {% endif %}
+        </div>
+        <div class="card-body p-0">
+            <div id="map" style="height: 600px; width: 100%;"></div>
+        </div>
+        <div class="card-footer bg-light small">
+            <div class="row text-center">
+                <div class="col-3">
+                    <span class="badge" style="background-color: #e74c3c; width: 12px; height: 12px; display: inline-block;"></span> 
+                    <span class="ms-1">Illegal Change (Govt Land)</span>
+                </div>
+                <div class="col-3">
+                    <span class="badge" style="background-color: #3498db; width: 12px; height: 12px; display: inline-block;"></span> 
+                    <span class="ms-1">Private Land Change</span>
+                </div>
+                <div class="col-3">
+                    <span class="badge" style="background-color: #2ecc71; width: 12px; height: 12px; display: inline-block;"></span> 
+                    <span class="ms-1">Safe Govt Land</span>
+                </div>
+                <div class="col-3 text-muted">
+                    <i class="fa-solid fa-info-circle me-1"></i> Zoom in to see high resolution.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Pass session GEE data to map.js
+    window.geeTileUrl = "{{ gee_tile_url|safe }}";
+    window.geeBounds = {{ gee_bounds|default:"null"|safe }};
+</script>
+{% endblock %}

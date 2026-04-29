@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title|default:"GLRMS Tamil Nadu" }}</title>
+    <!-- Bootstrap 5 CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome 6 CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- Leaflet CSS -->
+    {% if request.resolver_match.url_name in 'map_dashboard,dashboard,parcel_form,parcel_detail' %}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css"/>
+    {% endif %}
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/lands/css/custom.css">
+</head>
+<body class="bg-light">
+    <!-- Top Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark tn-bg-blue sticky-top shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center" href="{% url 'map_dashboard' %}">
+                <i class="fa-solid fa-map-location-dot me-2 fs-4 text-warning"></i>
+                <span class="fw-bold">GLRMS — Tamil Nadu</span>
+            </a>
+            <div class="d-flex align-items-center text-white">
+                {% if user.is_authenticated %}
+                <span class="badge tn-bg-yellow text-dark me-2 border">{{ request.user.officer.district|default:"State DB" }}</span>
+                <span class="badge bg-secondary me-3">{{ request.user.officer.get_role_display }}</span>
+                <span class="me-3"><i class="fa-solid fa-user-tie me-1"></i> {{ user.get_full_name }}</span>
+                <a href="{% url 'logout' %}" class="btn btn-sm btn-outline-light"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid h-100">
+        <div class="row h-100">
+            <!-- Sidebar Navigation -->
+            {% if user.is_authenticated %}
+            <div class="col-md-2 p-0 tn-sidebar bg-white shadow-sm" style="min-height: calc(100vh - 60px);">
+                <div class="list-group list-group-flush mt-3">
+                    <a href="{% url 'map_dashboard' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'map_dashboard' %}active-nav{% endif %}">
+                        <i class="fa-solid fa-map me-2"></i> Dashboard
+                    </a>
+                    <a href="{% url 'parcel_list' %}" class="list-group-item list-group-item-action {% if 'parcel' in request.resolver_match.url_name %}active-nav{% endif %}">
+                        <i class="fa-solid fa-layer-group me-2"></i> Land Parcels
+                    </a>
+                    <a href="{% url 'alert_dashboard' %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {% if 'alert' in request.resolver_match.url_name %}active-nav{% endif %}">
+                        <div><i class="fa-solid fa-triangle-exclamation text-danger me-2"></i> Alerts</div>
+                        <!-- Open count could be fetched via context processor, using static fallback for now -->
+                        <span class="badge bg-danger rounded-pill">Open</span>
+                    </a>
+                    {% if user.officer.role == 'ADMIN' %}
+                    <a href="{% url 'admin_dashboard' %}" class="list-group-item list-group-item-action {% if 'admin' in request.resolver_match.url_name %}active-nav{% endif %}">
+                        <i class="fa-solid fa-gear me-2"></i> Admin Panel
+                    </a>
+                    <a href="{% url 'officer_management' %}" class="list-group-item list-group-item-action {% if 'officer' in request.resolver_match.url_name %}active-nav{% endif %}">
+                        <i class="fa-solid fa-users me-2"></i> Officers
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Main Content Area -->
+            <div class="col-md-10 p-3 main-content overflow-auto" style="height: calc(100vh - 60px);">
+                <!-- Flash Messages -->
+                <div id="messages">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- HTMX Loading Indicator -->
+                <div id="loading" class="htmx-indicator position-fixed top-50 start-50 translate-middle z-3 bg-white p-3 rounded shadow" style="display:none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+
+    <!-- CSRF Token for HTMX -->
+    <script>
+        document.body.addEventListener('htmx:configRequest', (event) => {
+            event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
+        });
+    </script>
+    
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.9"></script>
+    {% if request.resolver_match.url_name in 'map_dashboard,dashboard,parcel_form,parcel_detail' %}
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+    <script src="/static/lands/js/map.js"></script>
+    {% endif %}
+</body>
+</html>

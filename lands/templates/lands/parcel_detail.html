@@ -1,0 +1,143 @@
+{% extends 'lands/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0 text-primary fw-bold"><i class="fa-regular fa-file-lines me-2"></i> Parcel Details</h4>
+    <div>
+        {% if request.user.officer.role in 'ADMIN,DISTRICT_OFFICER' %}
+        <a href="{% url 'parcel_edit' parcel.id %}" class="btn btn-sm btn-outline-secondary me-2"><i class="fa-solid fa-pen"></i> Edit Parcel</a>
+        {% endif %}
+        <a href="{% url 'alert_create' %}?parcel_id={{ parcel.id }}" class="btn btn-sm btn-danger"><i class="fa-solid fa-triangle-exclamation"></i> Raise Alert</a>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Left Column: Details -->
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0 mb-3">
+            <div class="card-header bg-white fw-bold"><i class="fa-solid fa-circle-info text-primary me-2"></i> Information</div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-sm-4 text-muted small fw-bold text-uppercase">Survey Number</div>
+                    <div class="col-sm-8 fw-bold fs-5">{{ parcel.survey_number }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-4 text-muted small fw-bold text-uppercase">Location</div>
+                    <div class="col-sm-8">{{ parcel.village }}, {{ parcel.taluk }} TK, {{ parcel.district.name }} District</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-4 text-muted small fw-bold text-uppercase">Classification</div>
+                    <div class="col-sm-8">{{ parcel.get_classification_display }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-4 text-muted small fw-bold text-uppercase">Area</div>
+                    <div class="col-sm-8">{{ parcel.area_sqm }} Sq.m</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-4 text-muted small fw-bold text-uppercase">Status</div>
+                    <div class="col-sm-8">
+                        <span class="badge badge-{{ parcel.status|lower }} px-3 py-2">{{ parcel.get_status_display }}</span>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-4 text-muted small fw-bold text-uppercase">Description</div>
+                    <div class="col-sm-8">{{ parcel.description|default:"No description available." }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm border-0 mb-3">
+            <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center">
+                <span><i class="fa-solid fa-folder-open text-warning me-2"></i> Documents</span>
+            </div>
+            <div class="card-body p-0" id="documents-container">
+                {% include 'lands/partials/document_list.html' %}
+            </div>
+            <div class="card-footer bg-light">
+                <form hx-post="{% url 'parcel_detail' parcel.id %}" hx-target="#documents-container" hx-encoding="multipart/form-data" class="d-flex align-items-center">
+                    {% csrf_token %}
+                    <select name="document_type" class="form-select form-select-sm me-2" style="width: 150px" required>
+                        <option value="">Doc Type...</option>
+                        {% for val, label in doc_types %}
+                        <option value="{{ val }}">{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="file" name="file" class="form-control form-control-sm me-2" required>
+                    <input type="text" name="description" class="form-control form-control-sm me-2" placeholder="Description (Optional)">
+                    <button type="submit" class="btn btn-sm btn-primary tn-bg-blue fw-bold px-3">Upload</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card shadow-sm border-0 mb-3 border-danger border-start border-4">
+            <div class="card-header bg-white fw-bold"><i class="fa-solid fa-triangle-exclamation text-danger me-2"></i> Related Alerts</div>
+            <div class="card-body p-0 table-responsive">
+                <table class="table mb-0 text-sm">
+                    <thead class="table-light text-muted small text-uppercase"><tr><th>Date</th><th>Type</th><th>Severity</th><th>Status</th><th>Action</th></tr></thead>
+                    <tbody>
+                        {% for a in alerts %}
+                        <tr>
+                            <td>{{ a.created_at|date:"d M Y" }}</td>
+                            <td>{{ a.get_alert_type_display }}</td>
+                            <td><span class="badge badge-{{ a.severity|lower }}">{{ a.get_severity_display }}</span></td>
+                            <td>{{ a.get_status_display }}</td>
+                            <td><a href="{% url 'alert_detail' a.id %}" class="btn btn-sm btn-outline-primary py-0 px-2">View</a></td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="5" class="text-center text-muted py-3">No alerts for this parcel.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Map & Logs -->
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 mb-3">
+            <div class="card-header bg-white fw-bold"><i class="fa-solid fa-map-location text-success me-2"></i> Spatial View</div>
+            <div class="card-body p-0">
+                <div id="map" style="height: 300px; width: 100%;"></div>
+            </div>
+        </div>
+        
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                var lat = parseFloat("{{ parcel.latitude|default:11.1271 }}");
+                var lon = parseFloat("{{ parcel.longitude|default:78.6569 }}");
+                
+                var map = L.map('map').setView([lat, lon], 15);
+                
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 18,
+                    minZoom: 5,
+                    attribution: '© OpenStreetMap'
+                }).addTo(map);
+
+                L.marker([lat, lon]).addTo(map)
+                    .bindPopup("Survey No: {{ parcel.survey_number }}")
+                    .openPopup();
+            });
+        </script>
+
+        <div class="card shadow-sm border-0 bg-light">
+            <div class="card-header bg-white fw-bold"><i class="fa-solid fa-clock-rotate-left text-secondary me-2"></i> Audit Timeline</div>
+            <div class="card-body p-3 overflow-auto" style="max-height: 400px;">
+                <div class="timeline" style="border-left: 2px solid #dee2e6; padding-left: 15px;">
+                    {% for log in audit_logs %}
+                    <div class="mb-3 position-relative">
+                        <span class="position-absolute bg-primary rounded-circle" style="width:10px; height:10px; left:-21px; top:4px;"></span>
+                        <div class="small fw-bold text-primary">{{ log.get_action_display }} <span class="text-muted fw-normal float-end">{{ log.timestamp|date:"d M H:i" }}</span></div>
+                        <div class="small text-dark">{{ log.description }}</div>
+                        <div class="small text-muted" style="font-size: 0.75rem;">By: {{ log.officer.user.get_full_name|default:"System" }}</div>
+                    </div>
+                    {% empty %}
+                    <div class="small text-muted">No activities logged.</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

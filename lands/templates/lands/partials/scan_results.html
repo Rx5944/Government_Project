@@ -1,0 +1,36 @@
+{% load tz %}
+<div class="alert {% if results.status == 'success' %}alert-danger{% else %}alert-warning{% endif %} tn-shadow border-0 animate__animated animate__fadeIn">
+    <strong>
+        <i class="fas {% if results.status == 'success' %}fa-satellite-dish{% else %}fa-exclamation-triangle{% endif %} me-2"></i>
+        Real-Time Scan Complete
+    </strong>
+    <hr class="my-2">
+    
+    {% if results.status == 'success' %}
+    <div class="row text-center">
+        <div class="col-4">
+            <div class="fw-bold fs-5 text-danger">{{ results.encroached }}</div>
+            <div class="small text-muted text-uppercase" style="font-size: 0.7rem;">Encroached</div>
+        </div>
+        <div class="col-4">
+            <div class="fw-bold fs-5 text-warning">{{ results.new_alerts }}</div>
+            <div class="small text-muted text-uppercase" style="font-size: 0.7rem;">New Alerts</div>
+        </div>
+        <div class="col-4">
+            <div class="fw-bold fs-5 text-info">{{ results.elapsed|default:0 }}s</div>
+            <div class="small text-muted text-uppercase" style="font-size: 0.7rem;">Duration</div>
+        </div>
+    </div>
+    <div class="mt-3">
+        <a href="{% url 'map_dashboard' %}" class="btn btn-sm btn-danger w-100 fw-bold">
+            <i class="fa-solid fa-map-location-dot me-1"></i> View Live Risk Map
+        </a>
+    </div>
+    {% else %}
+    <div class="small">{{ results.message }}</div>
+    {% endif %}
+    
+    <div class="mt-2 small text-muted text-center" style="font-size: 0.75rem;">
+        <i class="fas fa-clock me-1"></i>Completed at {% now "H:i:s" %} IST
+    </div>
+</div>

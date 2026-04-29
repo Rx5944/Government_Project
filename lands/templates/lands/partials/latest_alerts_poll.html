@@ -1,0 +1,14 @@
+{% if recent_alerts %}
+<div class="alert alert-warning tn-shadow animate__animated animate__pulse animate__infinite">
+    <strong><i class="fas fa-exclamation-triangle"></i> NEW ALERTS DETECTED!</strong>
+    <ul class="mb-0 mt-2 list-unstyled">
+        {% for alert in recent_alerts %}
+        <li>
+            <a href="{% url 'alert_detail' alert.id %}" class="text-decoration-none text-dark">
+                • {{ alert.parcel.survey_number }} - {{ alert.get_alert_type_display }} ({{ alert.created_at|timesince }} ago)
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}

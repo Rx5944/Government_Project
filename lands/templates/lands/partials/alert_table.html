@@ -1,0 +1,46 @@
+<div class="table-responsive">
+    <table class="table table-hover table-striped mb-0">
+        <thead class="table-light">
+            <tr>
+                <th>Alert ID</th>
+                <th>Parcel</th>
+                <th>District</th>
+                <th>Type</th>
+                <th>Severity</th>
+                <th>Method</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for alert in page_obj %}
+            <tr>
+                <td class="fw-bold text-danger">ALT-{{ alert.id }}</td>
+                <td>{{ alert.parcel.survey_number }}</td>
+                <td>{{ alert.parcel.district.name }}</td>
+                <td>{{ alert.get_alert_type_display }}</td>
+                <td><span class="badge badge-{{ alert.severity|lower }}">{{ alert.get_severity_display }}</span></td>
+                <td><span class="badge badge-{{ alert.detection_method|lower }}">{{ alert.get_detection_method_display }}</span></td>
+                <td><span class="badge badge-{{ alert.status|lower }}">{{ alert.get_status_display }}</span></td>
+                <td class="small">{{ alert.created_at|date:"d M Y" }}</td>
+                <td><a href="{% url 'alert_detail' alert.id %}" class="btn btn-sm btn-outline-primary py-0 px-2 title='View Details'"><i class="fa-solid fa-eye"></i> View</a></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="9" class="text-center text-muted py-4">No alerts found.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="p-3 border-top d-flex justify-content-between align-items-center text-muted small bg-light">
+    <div>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</div>
+    <div>
+        {% if page_obj.has_previous %}
+        <button hx-get="?page={{ page_obj.previous_page_number }}" hx-target="#table-container" hx-include="form" class="btn btn-sm btn-outline-secondary px-2 py-0">Prev</button>
+        {% endif %}
+        {% if page_obj.has_next %}
+        <button hx-get="?page={{ page_obj.next_page_number }}" hx-target="#table-container" hx-include="form" class="btn btn-sm btn-outline-secondary px-2 py-0">Next</button>
+        {% endif %}
+    </div>
+</div>

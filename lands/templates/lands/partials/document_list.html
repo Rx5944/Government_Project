@@ -1,0 +1,18 @@
+<table class="table table-sm table-hover mb-0 text-sm">
+    <thead class="table-light text-muted small text-uppercase">
+        <tr><th>Type</th><th>File</th><th>Description</th><th>Uploaded By</th><th>Date</th></tr>
+    </thead>
+    <tbody>
+        {% for doc in parcel.documents.all %}
+        <tr>
+            <td class="fw-bold">{{ doc.get_document_type_display }}</td>
+            <td><a href="{{ doc.file.url }}" target="_blank" class="btn btn-sm btn-outline-secondary py-0"><i class="fa-solid fa-download"></i> Download</a></td>
+            <td>{{ doc.description|default:"-" }}</td>
+            <td>{{ doc.uploaded_by.user.get_full_name }}</td>
+            <td>{{ doc.uploaded_at|date:"d M Y" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="text-center text-muted py-3">No documents uploaded.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
