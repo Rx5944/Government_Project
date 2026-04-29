@@ -26,3 +26,4 @@ redis
 django-celery-beat
 django-celery-results
 python-dotenv
+gunicorn
