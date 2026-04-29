@@ -26,3 +26,7 @@ redis
 django-celery-beat
 django-celery-results
 python-dotenv
+gunicorn
+psycopg2-binary
+whitenoise
+dj-database-url
